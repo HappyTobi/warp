@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/HappyTobi/warp/pkg/cmd/tools"
-	"github.com/HappyTobi/warp/pkg/internal/info"
 	"github.com/HappyTobi/warp/pkg/internal/renderer"
 	"github.com/HappyTobi/warp/pkg/internal/warp"
 	"github.com/spf13/cobra"
@@ -28,13 +27,12 @@ func Name(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	info := info.NewInfo(request)
-	name, err := info.LoadName()
+	js, err := request.GetJson()
 	if err != nil {
 		return err
 	}
 
-	fmt.Print(renderer.JsonInterface(name))
+	fmt.Print(renderer.JsonInterface(js))
 
 	return nil
 }
