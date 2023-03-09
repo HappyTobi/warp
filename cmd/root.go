@@ -15,6 +15,7 @@ func Root() *cobra.Command {
 
 	root.AddCommand(InfoCmd())
 	root.AddCommand(UserCmd())
+	root.AddCommand(ChargeTrackerCmd())
 
 	return root
 }

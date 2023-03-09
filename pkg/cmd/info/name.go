@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func Version(cmd *cobra.Command, args []string) error {
+func Name(cmd *cobra.Command, args []string) error {
 	request := &warp.Request{
-		Path:        "info/version",
+		Path:        "info/name",
 		ContentType: warp.JSON,
 	}
 
@@ -29,12 +29,12 @@ func Version(cmd *cobra.Command, args []string) error {
 	}
 
 	info := info.NewInfo(request)
-	version, err := info.LoadVersion()
+	name, err := info.LoadName()
 	if err != nil {
 		return err
 	}
 
-	fmt.Print(renderer.JsonInterface(version))
+	fmt.Print(renderer.JsonInterface(name))
 
 	return nil
 }

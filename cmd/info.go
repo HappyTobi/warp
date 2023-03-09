@@ -12,6 +12,7 @@ func InfoCmd() *cobra.Command {
 		Long:  "Info command print out information about WARP Charger",
 	}
 	info.AddCommand(versionCmd())
+	info.AddCommand(nameCmd())
 
 	return info
 }
@@ -21,5 +22,13 @@ func versionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print Warp Charger version",
 		RunE:  info.Version,
+	}
+}
+
+func nameCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "name",
+		Short: "Print Warp Charger name and type",
+		RunE:  info.Name,
 	}
 }
