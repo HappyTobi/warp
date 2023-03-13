@@ -17,8 +17,9 @@ func UserCmd() *cobra.Command {
 
 func ListCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
-		Short: "List all users command",
-		RunE:  users.List,
+		Use:     "list",
+		Short:   "List all users command",
+		RunE:    users.List,
+		PreRunE: ValidateOutputformat,
 	}
 }

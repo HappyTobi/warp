@@ -16,11 +16,12 @@ func NewRenderer(output string) Renderer {
 		return &jsonRenderer{}
 	case "yaml":
 		return &yamlRenderer{}
-		// case "csv":
-		// 	return &csvRenderer{}
 	}
-
 	fmt.Printf("unknown output format: %s", output)
 	os.Exit(1)
 	return nil
+}
+
+func NewCsvRenderer(settings *CsvSettings) *csvRenderer {
+	return &csvRenderer{settings: settings}
 }

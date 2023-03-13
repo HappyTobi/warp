@@ -19,16 +19,18 @@ func InfoCmd() *cobra.Command {
 
 func versionCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "version",
-		Short: "Print Warp Charger version",
-		RunE:  info.Version,
+		Use:     "version",
+		Short:   "Print Warp Charger version",
+		RunE:    info.Version,
+		PreRunE: ValidateOutputformat,
 	}
 }
 
 func nameCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "name",
-		Short: "Print Warp Charger name and type",
-		RunE:  info.Name,
+		Use:     "name",
+		Short:   "Print Warp Charger name and type",
+		RunE:    info.Name,
+		PreRunE: ValidateOutputformat,
 	}
 }

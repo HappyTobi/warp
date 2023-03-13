@@ -15,7 +15,7 @@ func NewChargeLog(request *warp.Request) *ChargeLog {
 	return &ChargeLog{request: request}
 }
 
-func (cl *ChargeLog) Load(users []*users.User) (interface{}, error) {
+func (cl *ChargeLog) Load(users []*users.User) (*Charges, error) {
 
 	data, err := cl.request.Get()
 	if err != nil {
