@@ -25,14 +25,17 @@ func (cl *ChargeLog) Load(users []*users.User) (interface{}, error) {
 	return deserialize(data, users)
 }
 
-func deserialize(data []byte, users []*users.User) ([]*Charge, error) {
+func deserialize(data []byte, users []*users.User) (*Charges, error) {
 	userMapping := make(map[int]string, len(users))
 
 	for user := range users {
 		userMapping[users[user].Id] = users[user].Username
 	}
 
-	charges := make([]*Charge, 0)
+	charges := &Charges{
+		Charges: make([]*Charge, 0),
+	}
+
 	reader := bytes.NewReader(data)
 	buf := make([]byte, 16)
 	for {
@@ -59,7 +62,7 @@ func deserialize(data []byte, users []*users.User) ([]*Charge, error) {
 		charge.PowerMeterStart = math.Float32frombits(meterStart)
 		charge.PowerMeterEnd = math.Float32frombits(meterEnd)
 
-		charges = append(charges, charge)
+		charges.Charges = append(charges.Charges, charge)
 
 		if len(string(buf)) == 0 {
 			break

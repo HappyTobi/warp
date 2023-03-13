@@ -3,6 +3,8 @@ package warp
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/HappyTobi/warp/pkg/internal/renderer"
 )
 
 const (
@@ -17,11 +19,12 @@ type RequestMethod string
 type ContentType string
 
 type Request struct {
-	Warp        string
-	Path        string
-	ContentType ContentType
-	Username    string
-	Password    string
+	Warp           string
+	Path           string
+	ContentType    ContentType
+	Username       string
+	Password       string
+	OutputRenderer renderer.Renderer
 }
 
 func (req *Request) Get() ([]byte, error) {

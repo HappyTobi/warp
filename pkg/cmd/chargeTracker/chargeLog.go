@@ -26,7 +26,7 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 
 	requests = append(requests, request, userRequest)
 
-	if err := tools.LoadGlobalParams(cmd, func(charger, username, password string) {
+	if err := tools.LoadGlobalParams(cmd, func(charger, username, password, output string) {
 		for _, req := range requests {
 			req.Warp = charger
 
@@ -34,6 +34,8 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 				req.Username = username
 				req.Password = password
 			}
+
+			req.OutputRenderer = renderer.NewRenderer(output)
 		}
 	}); err != nil {
 		return err
@@ -48,6 +50,6 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Print(renderer.JsonInterface(charges))
+	fmt.Print(requests[0].OutputRenderer.Render(charges))
 	return nil
 }

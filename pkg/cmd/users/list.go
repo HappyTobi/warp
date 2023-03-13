@@ -17,13 +17,15 @@ func List(cmd *cobra.Command, args []string) error {
 		ContentType: warp.JSON,
 	}
 
-	if err := tools.LoadGlobalParams(cmd, func(charger, username, password string) {
+	if err := tools.LoadGlobalParams(cmd, func(charger, username, password, output string) {
 		request.Warp = charger
 
 		if len(username) > 0 && len(password) > 0 {
 			request.Username = username
 			request.Password = password
 		}
+
+		request.OutputRenderer = renderer.NewRenderer(output)
 
 	}); err != nil {
 		return err
@@ -40,7 +42,7 @@ func List(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Print(renderer.JsonByte(data))
+	fmt.Print(request.OutputRenderer.RenderBytes(data))
 
 	return nil
 }

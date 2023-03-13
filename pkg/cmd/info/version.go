@@ -15,7 +15,7 @@ func Version(cmd *cobra.Command, args []string) error {
 		ContentType: warp.JSON,
 	}
 
-	if err := tools.LoadGlobalParams(cmd, func(charger, username, password string) {
+	if err := tools.LoadGlobalParams(cmd, func(charger, username, password, output string) {
 		request.Warp = charger
 
 		if len(username) > 0 && len(password) > 0 {
@@ -23,6 +23,7 @@ func Version(cmd *cobra.Command, args []string) error {
 			request.Password = password
 		}
 
+		request.OutputRenderer = renderer.NewRenderer(output)
 	}); err != nil {
 		return err
 	}
@@ -32,7 +33,7 @@ func Version(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Print(renderer.JsonInterface(js))
+	fmt.Print(request.OutputRenderer.Render(js))
 
 	return nil
 }
