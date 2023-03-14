@@ -23,6 +23,7 @@ func Root() *cobra.Command {
 	root.AddCommand(InfoCmd())
 	root.AddCommand(UserCmd())
 	root.AddCommand(ChargeTrackerCmd())
+	root.AddCommand(MeterCmd())
 
 	return root
 }
@@ -40,7 +41,7 @@ func initConfig() {
 	viper.SetConfigName(".warp")
 
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		//fmt.Println("Using config file:", viper.ConfigFileUsed())
 		return
 	}
 
