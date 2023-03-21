@@ -46,11 +46,12 @@ jobs:
       - name: Release Notes
         run:
           git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+          ls -alitr
+          cat .github/RELEASE-TEMPLATE.md
       - name: Release with Notes
         uses: softprops/action-gh-release@v1
         with:
           body_path: ".github/RELEASE-TEMPLATE.md"
-          draft: true
           files: |
             ./build/darwin/warp
             ./build/darwin/arm/warp
