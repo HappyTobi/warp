@@ -5,8 +5,7 @@ type jsonRenderer struct{}
 type yamlRenderer struct{}
 
 type csvRenderer struct {
-	settings   *CsvSettings
-	renderFile func(data interface{}) (string, error)
+	settings *CsvSettings
 }
 
 type CsvSettings struct {

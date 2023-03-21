@@ -42,7 +42,6 @@ func initConfig() {
 	viper.SetConfigName(".warp")
 
 	if err := viper.ReadInConfig(); err == nil {
-		//fmt.Println("Using config file:", viper.ConfigFileUsed())
 		return
 	}
 
@@ -51,6 +50,10 @@ func initConfig() {
 	viper.SetDefault("power.price", "0.35")
 	viper.SetDefault("csv.comma", ";")
 	viper.SetDefault("csv.header", true)
-	viper.SafeWriteConfig()
+	if err := viper.SafeWriteConfig(); err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+
 	fmt.Println("New warp config file created at:", viper.ConfigFileUsed())
 }

@@ -19,6 +19,9 @@ release:
 	GOARCH=arm64 GOOS=linux $(GOCMD) build -ldflags=${linker_flags} -o ./build/linux/arm/${BINARY_NAME} main.go
 	GOARCH=amd64 GOOS=windows $(GOCMD) build -ldflags=${linker_flags} -o ./build/windows/${BINARY_NAME}.exe main.go
 
+lint:
+	golangci-lint run ./...
+
 clean:
 	rm -rf ./build
 

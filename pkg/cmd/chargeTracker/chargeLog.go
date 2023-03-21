@@ -38,10 +38,10 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 				req.Password = password
 			}
 
-			output, _ = cmd.Flags().GetString("output")
+			outputFlag, _ := cmd.Flags().GetString("output")
 
 			if output != "csv" {
-				req.OutputRenderer = renderer.NewRenderer(output)
+				req.OutputRenderer = renderer.NewRenderer(outputFlag)
 			}
 		}
 	}); err != nil {
@@ -73,7 +73,7 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 	}
 
 	csvRenderer := renderer.NewCsvRenderer(csvSettings)
-	csvRenderer.Render(filePath, func(writer *csv.Writer, timeZone *time.Location, timeFormat string, price float32) {
+	if err := csvRenderer.Render(filePath, func(writer *csv.Writer, timeZone *time.Location, timeFormat string, price float32) error {
 		sumPerUser := make(map[string]float32)
 		for _, charge := range charges.Charges {
 			charged := charge.PowerMeterEnd - charge.PowerMeterStart
@@ -85,17 +85,26 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 				fmt.Sprintf("%.2f", charge.PowerMeterStart),
 				fmt.Sprintf("%.2f", charge.PowerMeterEnd),
 				fmt.Sprintf("%.2f", charged),
-				fmt.Sprintf("%s", charge.Duration),
+				charge.Duration,
 				fmt.Sprintf("%.2f", paid),
 			}
-			writer.Write(row)
+			if err := writer.Write(row); err != nil {
+				return err
+			}
 		}
 
 		for u, p := range sumPerUser {
 			sumPaiment := []string{"", u, "", "", "", "", fmt.Sprintf("%.2f", p)}
-			writer.Write(sumPaiment)
+			if err := writer.Write(sumPaiment); err != nil {
+				return err
+			}
 		}
-	})
+
+		return nil
+
+	}); err != nil {
+		return err
+	}
 
 	fmt.Printf("CSV file written to: %s \n", filePath)
 
