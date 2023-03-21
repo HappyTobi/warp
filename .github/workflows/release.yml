@@ -53,10 +53,10 @@ jobs:
         with:
           body_path: ".github/RELEASE-TEMPLATE.md"
           files: |
-            ./build/darwin/warp
-            ./build/darwin/arm/warp
-            ./build/linux/warp
-            ./build/linux/arm/warp
-            ./build/windows/warp.exe
+            build/darwin/warp
+            build/darwin/arm/warp
+            build/linux/warp
+            build/linux/arm/warp
+            build/windows/warp.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
