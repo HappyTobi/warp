@@ -2,7 +2,7 @@ package warp
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -32,11 +32,11 @@ func warpCall(url, contentType, method, username, password string) ([]byte, erro
 			}
 
 			defer resp.Body.Close()
-			return ioutil.ReadAll(resp.Body)
+			return io.ReadAll(resp.Body)
 		}
 		return nil, fmt.Errorf("could not identify digest authorization")
 	case http.StatusOK:
-		return ioutil.ReadAll(resp.Body)
+		return io.ReadAll(resp.Body)
 	default:
 		fmt.Print("Error")
 		return nil, fmt.Errorf("Unexpected error")

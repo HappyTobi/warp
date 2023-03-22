@@ -24,5 +24,5 @@ func (jr *jsonRenderer) RenderBytes(data []byte) (string, error) {
 	}
 
 	//TODO embed alway into object
-	return string(prettyJSON.Bytes()), nil
+	return prettyJSON.String(), nil
 }

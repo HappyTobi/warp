@@ -34,7 +34,7 @@ func getMD5(text string) string {
 
 func getCnonce() string {
 	b := make([]byte, 8)
-	io.ReadFull(rand.Reader, b)
+	io.ReadFull(rand.Reader, b) //nolint:errcheck
 	return fmt.Sprintf("%x", b)[:16]
 }
 
