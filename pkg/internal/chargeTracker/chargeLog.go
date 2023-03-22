@@ -15,17 +15,17 @@ func NewChargeLog(request *warp.Request) *ChargeLog {
 	return &ChargeLog{request: request}
 }
 
-func (cl *ChargeLog) Load(users []*users.User) (*Charges, error) {
+func (cl *ChargeLog) Load(users []*users.User, filters []Filter) (*Charges, error) {
 
 	data, err := cl.request.Get()
 	if err != nil {
 		return nil, err
 	}
 
-	return deserialize(data, users)
+	return deserialize(data, users, filters)
 }
 
-func deserialize(data []byte, users []*users.User) (*Charges, error) {
+func deserialize(data []byte, users []*users.User, filters []Filter) (*Charges, error) {
 	userMapping := make(map[int]string, len(users))
 
 	for user := range users {
@@ -62,7 +62,17 @@ func deserialize(data []byte, users []*users.User) (*Charges, error) {
 		charge.PowerMeterStart = math.Float32frombits(meterStart)
 		charge.PowerMeterEnd = math.Float32frombits(meterEnd)
 
-		charges.Charges = append(charges.Charges, charge)
+		addDataSet := true
+		for _, filter := range filters {
+			if !filter.Filter(charge) {
+				addDataSet = false
+				break
+			}
+		}
+
+		if addDataSet {
+			charges.Charges = append(charges.Charges, charge)
+		}
 
 		if len(string(buf)) == 0 {
 			break

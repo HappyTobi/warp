@@ -21,3 +21,19 @@ type Charges struct {
 type ChargeLog struct {
 	request *warp.Request
 }
+
+type MonthFilter struct {
+	filterValue int
+}
+
+type YearFilter struct {
+	filterValue int
+}
+
+type UserFilter struct {
+	filterValue string
+}
+
+type Filter interface {
+	Filter(*Charge) bool
+}

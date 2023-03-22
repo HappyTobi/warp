@@ -20,6 +20,9 @@ The cli tool brings the http api to the terminal.
 | `warp charge-tracker log` | Get the charge tracker log (csv) |
 | `warp version` | Get the version of the warp cli |
 
+Each command has a help page, which can be accessed with the `-h` or `--help` flag.
+The help page prints the usage of the command and the available flags.
+
 ## Configuration
 The configuration file is located at `~/.warp.yaml`.
 

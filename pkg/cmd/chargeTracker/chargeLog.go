@@ -29,6 +29,19 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 
 	requests = append(requests, request, userRequest)
 
+	/*
+		get filter params
+	*/
+	userFilter, _ := cmd.Flags().GetString("user")
+	monthFilter, _ := cmd.Flags().GetInt("month")
+	yearFilter, _ := cmd.Flags().GetInt("year")
+
+	mFilter := chargeTracker.NewFilter("month", "", monthFilter)
+	yFilter := chargeTracker.NewFilter("year", "", yearFilter)
+	uFilter := chargeTracker.NewFilter("user", userFilter, -1)
+
+	filters := chargeTracker.Filters(mFilter, yFilter, uFilter)
+
 	if err := tools.LoadGlobalParams(cmd, func(charger, username, password, output string) {
 		for _, req := range requests {
 			req.Warp = charger
@@ -52,7 +65,7 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 	user := users.NewUsersList(userRequest)
 	users, _ := user.Load()
 
-	charges, err := chargeLog.Load(users)
+	charges, err := chargeLog.Load(users, filters)
 	if err != nil {
 		return err
 	}

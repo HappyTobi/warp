@@ -27,6 +27,9 @@ func ChargeLogCmd() *cobra.Command {
 
 	chargeLogCmd.Flags().StringP("output", "o", "json", "Output format (json, yaml,csv)")
 	chargeLogCmd.Flags().StringP("file", "f", "", "Output file (default: stdout)")
+	chargeLogCmd.Flags().StringP("user", "r", "", "Filter by username (case-insensitive)")
+	chargeLogCmd.Flags().IntP("month", "m", -1, "Filter by month (format: 1...12)")
+	chargeLogCmd.Flags().IntP("year", "y", -1, "Filter by year (format: YYYY)")
 
 	return chargeLogCmd
 
