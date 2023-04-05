@@ -14,7 +14,7 @@ The cli tool brings the http api to the terminal.
 | `warp infor display-name` | Get the display name of the warp charger |
 | `warp info modules` | Get the modules of the warp charger |
 | `warp info features` | Get the features of the warp charger |
-| `warp meater values` | Get the meater values of the warp charger |
+| `warp meter values` | Get the meter values of the warp charger |
 | `warp users list` | Get the users of the warp charger |
 | `warp charge-tracker` | Get information about the charge tracker |
 | `warp charge-tracker log` | Get the charge tracker log (csv) |
