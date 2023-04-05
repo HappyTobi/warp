@@ -16,3 +16,16 @@ type CsvSettings struct {
 	HeaderEnabled bool
 	FilePath      string
 }
+
+type pdfRenderer struct {
+	settings *PdfSettings
+}
+
+type PdfSettings struct {
+	Price         string
+	TimeFormat    string
+	TimeZone      string
+	Comma         string
+	HeaderEnabled bool
+	FilePath      string
+}

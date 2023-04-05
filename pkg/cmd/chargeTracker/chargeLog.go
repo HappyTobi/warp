@@ -3,6 +3,7 @@ package chargeTracker
 import (
 	"encoding/csv"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/HappyTobi/warp/pkg/cmd/tools"
@@ -42,6 +43,8 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 
 	filters := chargeTracker.Filters(mFilter, yFilter, uFilter)
 
+	outputFlag, _ := cmd.Flags().GetString("output")
+
 	if err := tools.LoadGlobalParams(cmd, func(charger, username, password, output string) {
 		for _, req := range requests {
 			req.Warp = charger
@@ -51,9 +54,7 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 				req.Password = password
 			}
 
-			outputFlag, _ := cmd.Flags().GetString("output")
-
-			if output != "csv" {
+			if renderer.IsRenderer(outputFlag) {
 				req.OutputRenderer = renderer.NewRenderer(outputFlag)
 			}
 		}
@@ -76,7 +77,26 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 	}
 
 	filePath, _ := cmd.Flags().GetString("file")
+	switch outputFlag {
+	case "csv":
+		RenderCsv(filePath, charges)
+	case "pdf":
+		RenderPdf(filePath, charges)
+	}
+	fmt.Printf("%s file written to: %s \n", strings.ToUpper(outputFlag), filePath)
 
+	return nil
+}
+
+func RenderPdf(filePath string, charges *chargeTracker.Charges) error {
+	pdfRenderer := renderer.NewPdfRenderer(&renderer.PdfSettings{})
+
+	return pdfRenderer.Render(filePath, func(timeZone *time.Location, timeFormat string, price float32) error {
+		return nil
+	})
+}
+
+func RenderCsv(filePath string, charges *chargeTracker.Charges) error {
 	csvSettings := &renderer.CsvSettings{
 		Price:         viper.GetString("power.price"),
 		TimeFormat:    viper.GetString("date_time.time_format"),
@@ -86,7 +106,7 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 	}
 
 	csvRenderer := renderer.NewCsvRenderer(csvSettings)
-	if err := csvRenderer.Render(filePath, func(writer *csv.Writer, timeZone *time.Location, timeFormat string, price float32) error {
+	return csvRenderer.Render(filePath, func(writer *csv.Writer, timeZone *time.Location, timeFormat string, price float32) error {
 		sumPerUser := make(map[string]float32)
 		for _, charge := range charges.Charges {
 			charged := charge.PowerMeterEnd - charge.PowerMeterStart
@@ -115,11 +135,5 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 
 		return nil
 
-	}); err != nil {
-		return err
-	}
-
-	fmt.Printf("CSV file written to: %s \n", filePath)
-
-	return nil
+	})
 }

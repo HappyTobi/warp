@@ -12,7 +12,7 @@ func ValidateOutputformat(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if output != "json" && output != "yaml" {
+	if output != "json" && output != "yaml" && output != "yml" {
 		return fmt.Errorf("invalid output format: %s", output)
 	}
 
