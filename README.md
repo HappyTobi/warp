@@ -90,15 +90,19 @@ $ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password"
 ]
 ```
 
+### Charge tracker csv export
+```console
+$ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password" -o csv -f ~/Desktop/my-charge-document.csv
+```
+
 ### Charge tracker pdf export
 ```console
 $ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password" -o pdf -f ~/Desktop/my-charge-document.pdf
 ```
 
-### Charge tracker csv export
-```console
-$ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password" -o csv -f ~/Desktop/my-charge-document.csv
-```
+Example pdf document:
+![Example pdf document](doc/charge-pdf-example.png)
+
 
 ## Warp Charger information
 

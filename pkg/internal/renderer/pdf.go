@@ -120,7 +120,7 @@ func (pR *pdfRenderer) Render(filepath string, render func(timeZone *time.Locati
 			pdf.ColSpace(7)
 
 			pdf.Col(5, func() {
-				pdf.Text(fmt.Sprintf("Total costs: %.2f€ (%.2f ct/kWh)", sumCosts, pR.settings.Price), props.Text{
+				pdf.Text(fmt.Sprintf("Total costs: %.2f€ (%.2f ct/kWh)", sumCosts, pR.settings.Price*100), props.Text{
 					Align: consts.Left,
 				})
 			})
