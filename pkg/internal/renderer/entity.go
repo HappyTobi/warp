@@ -9,7 +9,7 @@ type csvRenderer struct {
 }
 
 type CsvSettings struct {
-	Price         string
+	Price         float32
 	TimeFormat    string
 	TimeZone      string
 	Comma         string
@@ -22,10 +22,19 @@ type pdfRenderer struct {
 }
 
 type PdfSettings struct {
-	Price         string
-	TimeFormat    string
-	TimeZone      string
-	Comma         string
-	HeaderEnabled bool
-	FilePath      string
+	Price       float32
+	TimeFormat  string
+	TimeZone    string
+	Comma       string
+	PrintHeader bool
+	LogoHeader  string
+	Settings    GlobalSettings
+}
+
+type GlobalSettings struct {
+	Firstname string
+	Lastname  string
+	Street    string
+	Postcode  string
+	City      string
 }

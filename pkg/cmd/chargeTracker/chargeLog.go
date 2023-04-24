@@ -89,18 +89,67 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 }
 
 func RenderPdf(filePath string, charges *chargeTracker.Charges) error {
-	pdfRenderer := renderer.NewPdfRenderer(&renderer.PdfSettings{})
+	price := (viper.GetFloat64("settings.power.price") / 100)
 
-	return pdfRenderer.Render(filePath, func(timeZone *time.Location, timeFormat string, price float32) error {
-		return nil
+	pdfSettings := &renderer.PdfSettings{
+		Price:       float32(price),
+		TimeFormat:  viper.GetString("settings.date_time.time_format"),
+		TimeZone:    viper.GetString("settings.date_time.time_zone"),
+		PrintHeader: viper.GetBool("pdf.print_header"),
+		LogoHeader:  viper.GetString("pdf.image_path"),
+		Settings: renderer.GlobalSettings{
+			Firstname: viper.GetString("settings.user.firstname"),
+			Lastname:  viper.GetString("settings.user.lastname"),
+			Street:    viper.GetString("settings.user.street"),
+			Postcode:  viper.GetString("settings.user.postcode"),
+			City:      viper.GetString("settings.user.city"),
+		},
+	}
+
+	pdfRenderer := renderer.NewPdfRenderer(pdfSettings)
+
+	return pdfRenderer.Render(filePath, func(timeZone *time.Location, timeFormat string, price float32) ([]string, float32, [][]string, error) {
+		content := make([][]string, len(charges.Charges)+2)
+		sumPerUser := make(map[string]float32)
+		totalEnergy := float32(0)
+		users := make([]string, 0)
+
+		line := 0
+		for _, charge := range charges.Charges {
+			charged := charge.PowerMeterEnd - charge.PowerMeterStart
+			paid := charged * price
+			sumPerUser[charge.User] += paid
+			row := []string{
+				charge.Time.In(timeZone).Format(timeFormat),
+				charge.User,
+				fmt.Sprintf("%.2f", charge.PowerMeterStart),
+				fmt.Sprintf("%.2f", charge.PowerMeterEnd),
+				fmt.Sprintf("%.2f", charged),
+				charge.Duration,
+				fmt.Sprintf("%.2f", paid),
+			}
+
+			totalEnergy += charged
+			content[line] = row
+			line++
+		}
+
+		for user, sum := range sumPerUser {
+			content[line] = []string{"", user, "", "", "", "", fmt.Sprintf("%.2f", sum)}
+			users = append(users, user)
+			line++
+		}
+
+		return users, totalEnergy, content, nil
 	})
 }
 
 func RenderCsv(filePath string, charges *chargeTracker.Charges) error {
+	price := (viper.GetFloat64("settings.power.price") / 100)
 	csvSettings := &renderer.CsvSettings{
-		Price:         viper.GetString("power.price"),
-		TimeFormat:    viper.GetString("date_time.time_format"),
-		TimeZone:      viper.GetString("date_time.time_zone"),
+		Price:         float32(price),
+		TimeFormat:    viper.GetString("settings.date_time.time_format"),
+		TimeZone:      viper.GetString("settings.date_time.time_zone"),
 		Comma:         viper.GetString("csv.comma"),
 		HeaderEnabled: viper.GetBool("csv.header"),
 	}

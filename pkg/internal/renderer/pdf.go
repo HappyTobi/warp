@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/johnfercher/maroto/pkg/color"
@@ -10,7 +11,18 @@ import (
 	"github.com/johnfercher/maroto/pkg/props"
 )
 
-func (pR *pdfRenderer) Render(filepath string, render func(timeZone *time.Location, timeFormat string, price float32) error) error {
+func (pR *pdfRenderer) Render(filepath string, render func(timeZone *time.Location, timeFormat string, price float32) ([]string, float32, [][]string, error)) error {
+	location, _ := time.LoadLocation(pR.settings.TimeZone)
+	timeFormat := pR.settings.TimeFormat
+
+	headers := []string{"Datetime", "User", "Power start", "Power end", "Charge (kWh)", "Duration (hh:mm:ss)", "Cost €"}
+	users, totalEnergy, content, err := render(location, timeFormat, pR.settings.Price)
+	if err != nil {
+		return err
+	}
+
+	sumCosts := totalEnergy * pR.settings.Price
+
 	pdf := pdf.NewMaroto(consts.Portrait, consts.A4)
 	pdf.SetPageMargins(10, 15, 10)
 
@@ -22,7 +34,7 @@ func (pR *pdfRenderer) Render(filepath string, render func(timeZone *time.Locati
 		})
 		pdf.Row(20, func() {
 			pdf.Col(12, func() {
-				if err := pdf.FileImage("/workspaces/warp/pkg/internal/renderer/logo.png", props.Rect{
+				if err := pdf.FileImage(pR.settings.LogoHeader, props.Rect{
 					Center:  true,
 					Percent: 80,
 				}); err != nil {
@@ -35,134 +47,98 @@ func (pR *pdfRenderer) Render(filepath string, render func(timeZone *time.Locati
 		pdf.Line(10)
 	})
 
-	pdf.Row(5, func() {
-		pdf.Col(4, func() {
-			pdf.Text("Vorname Nachname", props.Text{
-				Align: consts.Left,
+	if pR.settings.PrintHeader {
+		pdf.Row(5, func() {
+			pdf.Col(4, func() {
+				pdf.Text(fmt.Sprintf("%s %s", pR.settings.Settings.Firstname, pR.settings.Settings.Lastname), props.Text{
+					Align: consts.Left,
+				})
+			})
+
+			pdf.ColSpace(3)
+
+			pdf.Col(5, func() {
+				pdf.Text("Charger: warp-charger", props.Text{
+					Align: consts.Left,
+				})
 			})
 		})
 
-		pdf.ColSpace(3)
-
-		pdf.Col(5, func() {
-			pdf.Text("Wallbox: Warp-Charger", props.Text{
-				Align: consts.Left,
+		pdf.Row(5, func() {
+			pdf.Col(4, func() {
+				pdf.Text(pR.settings.Settings.Street, props.Text{
+					Align: consts.Left,
+				})
 			})
-		})
-	})
 
-	pdf.Row(5, func() {
-		pdf.Col(4, func() {
-			pdf.Text("Straße Nr", props.Text{
-				Align: consts.Left,
-			})
-		})
+			pdf.ColSpace(3)
 
-		pdf.ColSpace(3)
-
-		pdf.Col(5, func() {
-			pdf.Text("PDF erstellt am: <DATE>", props.Text{
-				Align: consts.Left,
-			})
-		})
-	})
-
-	pdf.Row(5, func() {
-		pdf.Col(4, func() {
-			pdf.Text("0000 Ort", props.Text{
-				Align: consts.Left,
+			pdf.Col(5, func() {
+				pdf.Text(fmt.Sprintf("Exported on: %s", time.Now().In(location).Format(timeFormat)), props.Text{
+					Align: consts.Left,
+				})
 			})
 		})
 
-		pdf.ColSpace(3)
+		pdf.Row(5, func() {
+			pdf.Col(4, func() {
+				pdf.Text(fmt.Sprintf("%s %s", pR.settings.Settings.Postcode, pR.settings.Settings.Street), props.Text{
+					Align: consts.Left,
+				})
+			})
 
-		pdf.Col(5, func() {
-			pdf.Text("Exportierte Benutzer: <LIST USERS>", props.Text{
-				Align: consts.Left,
+			pdf.ColSpace(3)
+
+			pdf.Col(5, func() {
+				pdf.Text(fmt.Sprintf("Exported users: %s", strings.Join(users, ",")), props.Text{
+					Align: consts.Left,
+				})
 			})
 		})
-	})
 
-	pdf.Row(5, func() {
-		pdf.ColSpace(7)
+		/*pdf.Row(5, func() {
+			pdf.ColSpace(7)
 
-		pdf.Col(5, func() {
-			pdf.Text("Exportierte Zeitraum: <EXPORT TIME RNAGe>", props.Text{
-				Align: consts.Left,
+			pdf.Col(5, func() {
+				pdf.Text("Exported period: <EXPORT TIME RNAGe>", props.Text{
+					Align: consts.Left,
+				})
+			})
+		})*/
+
+		pdf.Row(5, func() {
+			pdf.ColSpace(7)
+
+			pdf.Col(5, func() {
+				pdf.Text(fmt.Sprintf("Total energy kWh: %.2f", float32(totalEnergy)), props.Text{
+					Align: consts.Left,
+				})
 			})
 		})
-	})
 
-	pdf.Row(5, func() {
-		pdf.ColSpace(7)
+		pdf.Row(5, func() {
+			pdf.ColSpace(7)
 
-		pdf.Col(5, func() {
-			pdf.Text("Gesammt kWH: <SUM kWH>", props.Text{
-				Align: consts.Left,
+			pdf.Col(5, func() {
+				pdf.Text(fmt.Sprintf("Total costs: %.2f€ (%.2f ct/kWh)", sumCosts, pR.settings.Price), props.Text{
+					Align: consts.Left,
+				})
 			})
 		})
-	})
 
-	pdf.Row(5, func() {
-		pdf.ColSpace(7)
-
-		pdf.Col(5, func() {
-			pdf.Text("Kosten: € (35,56 ct/kWh)", props.Text{
-				Align: consts.Left,
-			})
-		})
-	})
-
-	pdf.Line(10)
-
-	headers := []string{"Time", "User", "Power meter start", "Power meter end", "Charge (kWh)", "Duration (hh:mm:ss)", "Cost (€)"}
-	contents := [][]string{
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
-		{"Content1", "Content2", "Content3", "Content4", "Content5", "Content6", "Content7"},
+		pdf.Line(10)
 	}
 
-	pdf.TableList(headers, contents, props.TableList{
+	pdf.TableList(headers, content, props.TableList{
 		HeaderProp: props.TableListContent{
 			Family:    consts.Arial,
 			Style:     consts.Normal,
-			GridSizes: []uint{2, 1, 2, 2, 2, 2, 1},
+			GridSizes: []uint{2, 2, 2, 2, 1, 2, 1},
 		},
 		ContentProp: props.TableListContent{
 			Family:    consts.Courier,
 			Style:     consts.Normal,
-			GridSizes: []uint{2, 1, 2, 2, 2, 2, 1},
+			GridSizes: []uint{2, 2, 2, 2, 1, 2, 1},
 		},
 		Align: consts.Left,
 		AlternatedBackground: &color.Color{
