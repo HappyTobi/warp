@@ -3,7 +3,6 @@ package renderer
 import (
 	"encoding/csv"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -25,14 +24,9 @@ func (cR *csvRenderer) Render(filePath string, render func(writer *csv.Writer, t
 		}
 	}
 
-	price, err := strconv.ParseFloat(cR.settings.Price, 32)
-	if err != nil {
-		return err
-	}
-
 	location, _ := time.LoadLocation(cR.settings.TimeZone)
 	timeFormat := cR.settings.TimeFormat
-	if err := render(csvWriter, location, timeFormat, float32(price)); err != nil {
+	if err := render(csvWriter, location, timeFormat, cR.settings.Price); err != nil {
 		return err
 	}
 

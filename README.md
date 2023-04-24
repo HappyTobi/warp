@@ -9,15 +9,15 @@ The cli tool brings the http api to the terminal.
 | --- | --- |
 | `warp info` | Get information about the warp charger |
 | `warp info version` | Get the version of the warp charger |
-| `warp info update` | Check if an warp charger update is available |
+| `warp info version update` | Check if an warp charger update is available |
 | `warp info name` | Get the name of the warp charger |
 | `warp infor display-name` | Get the display name of the warp charger |
 | `warp info modules` | Get the modules of the warp charger |
 | `warp info features` | Get the features of the warp charger |
-| `warp meater values` | Get the meater values of the warp charger |
+| `warp meter values` | Get the meter values of the warp charger |
 | `warp users list` | Get the users of the warp charger |
 | `warp charge-tracker` | Get information about the charge tracker |
-| `warp charge-tracker log` | Get the charge tracker log (csv) |
+| `warp charge-tracker log` | Get the charge tracker log (csv or pdf) |
 | `warp version` | Get the version of the warp cli |
 
 Each command has a help page, which can be accessed with the `-h` or `--help` flag.
@@ -31,11 +31,21 @@ The configuration file is located at `~/.warp.yaml`.
 csv:
     comma: ; # separator for csv
     header: true # add header to csv
-date_time:
-    time_format: 15:04:05 02-01-2006 # date time format
-    time_zone: Europe/Berlin # time zone to print the date time
-power:
-    price: "0.35" # price per kWh
+pdf:
+    image_path: /root/.config/warp/logo.png # path to the logo image for the pdf
+    print_header: false # print header in pdf
+settings:
+    date_time:
+        time_format: 15:04:05 02-01-2006 #date time format
+        time_zone: Europe/Berlin # time zone to print the date time
+    power:
+        price: "35.55" # price per kWh
+    user: # user information that will be added to the pdf if print_header is true
+        city: internet
+        firstname: happy
+        lastname: tobi
+        postcode: "0000"
+        street: githubroad
 ```
 
 #### Build warp cli
@@ -79,6 +89,20 @@ $ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password"
  }
 ]
 ```
+
+### Charge tracker csv export
+```console
+$ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password" -o csv -f ~/Desktop/my-charge-document.csv
+```
+
+### Charge tracker pdf export
+```console
+$ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password" -o pdf -f ~/Desktop/my-charge-document.pdf
+```
+
+Example pdf document:
+![Example pdf document](doc/charge-pdf-example.png)
+
 
 ## Warp Charger information
 

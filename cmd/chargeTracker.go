@@ -39,12 +39,16 @@ func validateCustomOutputFormat(cmd *cobra.Command, args []string) error {
 	output, _ := cmd.Flags().GetString("output")
 	file, _ := cmd.Flags().GetString("file")
 
-	if output != "json" && output != "yaml" && output != "csv" {
+	if output != "json" && output != "yaml" && output != "csv" && output != "pdf" {
 		return fmt.Errorf("invalid output format: %s", output)
 	}
 
 	if output == "csv" && file == "" {
 		return fmt.Errorf("output format csv requires a file to be set")
+	}
+
+	if output == "pdf" && file == "" {
+		return fmt.Errorf("output format pdf requires a file to be set")
 	}
 
 	return nil
