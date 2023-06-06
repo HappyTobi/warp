@@ -10,6 +10,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	oldConfig      = ".warp.yaml"
+	configFileName = "warp.yaml"
+)
+
 func Root() *cobra.Command {
 	root := &cobra.Command{
 		Use: "warp",
@@ -41,16 +46,18 @@ func initConfig() {
 	cobra.CheckErr(err)
 
 	configPath := filepath.Join(home, ".config", "warp")
+	configFilePath := filepath.Join(configPath, configFileName)
+	configFilePathLegacy := filepath.Join(home, oldConfig)
 
 	migrated := false
-	if _, err := os.Stat(filepath.Join(home, ".warp.yaml")); !os.IsNotExist(err) {
+	if _, err := os.Stat(configFilePathLegacy); !os.IsNotExist(err) {
 		fmt.Println("Configurations file will me moved and updated to new format")
 		_ = os.MkdirAll(configPath, os.ModePerm)
-		if err := os.Rename(filepath.Join(home, "warp.yaml"), filepath.Join(configPath, "warp.yaml")); err != nil {
+		if err := os.Rename(configFilePathLegacy, configFilePath); err != nil {
 			fmt.Println("Error while moving config file")
 			os.Exit(1)
 		}
-		os.Remove(filepath.Join(home, ".warp.yaml"))
+		os.Remove(configFilePathLegacy)
 		migrated = true
 	}
 
@@ -84,6 +91,10 @@ func initConfig() {
 	if err := settings.StoreImage(imagePath); err != nil {
 		fmt.Print("Error while storing image")
 		os.Exit(1)
+	}
+
+	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
+		os.WriteFile(configFilePath, []byte{}, 0644)
 	}
 
 	if err := viper.WriteConfig(); err != nil {
