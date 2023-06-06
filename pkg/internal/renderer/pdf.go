@@ -82,7 +82,7 @@ func (pR *pdfRenderer) Render(filepath string, render func(timeZone *time.Locati
 
 		pdf.Row(5, func() {
 			pdf.Col(4, func() {
-				pdf.Text(fmt.Sprintf("%s %s", pR.settings.Settings.Postcode, pR.settings.Settings.Street), props.Text{
+				pdf.Text(fmt.Sprintf("%s %s", pR.settings.Settings.Postcode, pR.settings.Settings.City), props.Text{
 					Align: consts.Left,
 				})
 			})
