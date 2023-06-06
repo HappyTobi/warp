@@ -22,15 +22,25 @@ func InfoCmd() *cobra.Command {
 
 func versionCmd() *cobra.Command {
 	version := &cobra.Command{
-		Use:     "version",
+		Use:   "version",
+		Short: "Show Warp Charger version or check for updates",
+		Long:  "Show Warp Charger version that is currently installed at the Warp Charger. The other option is to check for an update",
+	}
+
+	version.AddCommand(updateCmd())
+	version.AddCommand(warpmVersionCmd())
+
+	return version
+}
+
+func warpmVersionCmd() *cobra.Command {
+	warpVersion := &cobra.Command{
+		Use:     "warp",
 		Short:   "Print Warp Charger version",
 		RunE:    info.Version,
 		PreRunE: ValidateOutputformat,
 	}
-
-	version.AddCommand(updateCmd())
-
-	return version
+	return warpVersion
 }
 
 func updateCmd() *cobra.Command {
