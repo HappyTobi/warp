@@ -8,7 +8,7 @@ The cli tool brings the http api to the terminal.
 | Command | Description |
 | --- | --- |
 | `warp info` | Get information about the warp charger |
-| `warp info version` | Get the version of the warp charger |
+| `warp info version warp` | Get the version of the warp charger |
 | `warp info version update` | Check if an warp charger update is available |
 | `warp info name` | Get the name of the warp charger |
 | `warp infor display-name` | Get the display name of the warp charger |
