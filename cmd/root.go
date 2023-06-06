@@ -94,7 +94,10 @@ func initConfig() {
 	}
 
 	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
-		os.WriteFile(configFilePath, []byte{}, 0644)
+		if err := os.WriteFile(configFilePath, []byte{}, 0644); err != nil {
+			fmt.Print("Error while creating config file")
+			os.Exit(1)
+		}
 	}
 
 	if err := viper.WriteConfig(); err != nil {
