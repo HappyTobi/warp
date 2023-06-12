@@ -19,6 +19,8 @@ The cli tool brings the http api to the terminal.
 | `warp charge-tracker` | Get information about the charge tracker |
 | `warp charge-tracker log` | Get the charge tracker log (csv or pdf) |
 | `warp version` | Get the version of the warp cli |
+| `warp charge start` | Start charging for a user with or without a specific power |
+| `warp charge stop` | Stops the current charging |
 
 Each command has a help page, which can be accessed with the `-h` or `--help` flag.
 The help page prints the usage of the command and the available flags.
@@ -62,6 +64,13 @@ cd build/
 ```
 
 ## Example usage
+
+### Start charging
+```console
+$ warp charge start -c "http://mywarp.ip -u "username" -p "password" -r "warp-user" -a 6000
+
+"Charging started for user warp-user with 6000 ampere"
+```
 
 ### Info version
 ```console

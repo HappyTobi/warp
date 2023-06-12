@@ -29,7 +29,7 @@ type Request struct {
 
 func (req *Request) Get() ([]byte, error) {
 	url := fmt.Sprintf("%s/%s", req.Warp, req.Path)
-	return warpCall(url, string(req.ContentType), string(GET), req.Username, req.Password)
+	return warpCall(url, string(req.ContentType), string(GET), req.Username, req.Password, nil)
 }
 
 func (req *Request) GetJson() (map[string]interface{}, error) {
@@ -45,4 +45,14 @@ func (req *Request) GetJson() (map[string]interface{}, error) {
 	}
 
 	return genJson, nil
+}
+
+func (req *Request) Put(data []byte) ([]byte, error) {
+	url := fmt.Sprintf("%s/%s", req.Warp, req.Path)
+	return warpCall(url, string(req.ContentType), string(PUT), req.Username, req.Password, data)
+}
+
+func (req *Request) Post(data []byte) ([]byte, error) {
+	url := fmt.Sprintf("%s/%s", req.Warp, req.Path)
+	return warpCall(url, string(req.ContentType), string(POST), req.Username, req.Password, data)
 }

@@ -1,21 +1,20 @@
 package warp
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
 )
 
-func warpCall(url, contentType, method, username, password string) ([]byte, error) {
-	hReq, err := http.NewRequest(method, url, nil)
+func warpCall(url, contentType, method, username, password string, data []byte) ([]byte, error) {
+	req, err := setupRequest(url, contentType, method, data)
 	if err != nil {
 		return nil, err
 	}
 	client := &http.Client{}
 
-	hReq.Header.Set("Content-Type", contentType)
-
-	resp, err := client.Do(hReq)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +24,13 @@ func warpCall(url, contentType, method, username, password string) ([]byte, erro
 	switch resp.StatusCode {
 	case http.StatusUnauthorized:
 		if len(resp.Header["Www-Authenticate"]) > 0 {
-			hReq.Header.Set("Authorization", digestAuthrization(url, method, username, password, resp))
-			resp, err := client.Do(hReq)
+			req, err := setupRequest(url, contentType, method, data)
+			if err != nil {
+				return nil, err
+			}
+			req.Header.Set("Authorization", digestAuthrization(url, method, username, password, resp))
+
+			resp, err := client.Do(req)
 			if err != nil {
 				return nil, err
 			}
@@ -41,4 +45,16 @@ func warpCall(url, contentType, method, username, password string) ([]byte, erro
 		fmt.Print("Error")
 		return nil, fmt.Errorf("Unexpected error")
 	}
+}
+
+func setupRequest(url, contentType, method string, data []byte) (*http.Request, error) {
+	bodyData := bytes.NewBuffer(data)
+	hReq, err := http.NewRequest(method, url, bodyData)
+	if err != nil {
+		return nil, err
+	}
+
+	hReq.Header.Set("Content-Type", contentType)
+
+	return hReq, nil
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HappyTobi/warp/pkg/cmd/tools"
+	"github.com/HappyTobi/warp/pkg/cmd/middleware"
 	"github.com/HappyTobi/warp/pkg/internal/chargeTracker"
 	"github.com/HappyTobi/warp/pkg/internal/renderer"
 	"github.com/HappyTobi/warp/pkg/internal/users"
@@ -18,17 +18,16 @@ import (
 func ChargeLog(cmd *cobra.Command, args []string) error {
 	requests := make([]*warp.Request, 0, 2)
 
-	request := &warp.Request{
+	chargeTrackerRequest := &warp.Request{
 		Path:        "charge_tracker/charge_log",
 		ContentType: warp.JSON,
 	}
 
-	userRequest := &warp.Request{
-		Path:        "users/all_usernames",
+	request := &warp.Request{
 		ContentType: warp.JSON,
 	}
 
-	requests = append(requests, request, userRequest)
+	requests = append(requests, chargeTrackerRequest, request)
 
 	/*
 		get filter params
@@ -45,7 +44,7 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 
 	outputFlag, _ := cmd.Flags().GetString("output")
 
-	if err := tools.LoadGlobalParams(cmd, func(charger, username, password, output string) {
+	if err := middleware.LoadGlobalParams(cmd, func(charger, username, password, output string) {
 		for _, req := range requests {
 			req.Warp = charger
 
@@ -62,9 +61,9 @@ func ChargeLog(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	chargeLog := chargeTracker.NewChargeLog(request)
-	user := users.NewUsersList(userRequest)
-	users, _ := user.Load()
+	chargeLog := chargeTracker.NewChargeLog(chargeTrackerRequest)
+	user := users.NewUsersService(*request)
+	users, _ := user.AllUsernames()
 
 	charges, err := chargeLog.Load(users, filters)
 	if err != nil {

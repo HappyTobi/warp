@@ -4,15 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-
-	"github.com/HappyTobi/warp/pkg/internal/warp"
 )
 
-func NewUsersList(request *warp.Request) *Users {
-	return &Users{request: request}
-}
+func (u *Users) AllUsernames() ([]*User, error) {
+	u.request.Path = "users/all_usernames"
 
-func (u *Users) Load() ([]*User, error) {
 	data, err := u.request.Get()
 	if err != nil {
 		return nil, err
@@ -61,5 +57,4 @@ func deserialize(data []byte) ([]*User, error) {
 	}
 
 	return users, nil
-
 }

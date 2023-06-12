@@ -1,4 +1,4 @@
-package info
+package update
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/HappyTobi/warp/pkg/internal/warp"
 )
 
-func NewUpdate(request *warp.Request, warpVersion string, firmwareVersion string) *InfoUpdate {
+func NewUpdate(request warp.Request, warpVersion string, firmwareVersion string) *InfoUpdate {
 	return &InfoUpdate{
 		request:         request,
 		warpVersion:     warpVersion,
