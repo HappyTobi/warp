@@ -27,6 +27,7 @@ func Root() *cobra.Command {
 	root.PersistentFlags().StringP("password", "p", "", "Password to authenticate (required if username is set)")
 	root.MarkFlagsRequiredTogether("username", "password")
 
+	root.AddCommand(ChargeCmd())
 	root.AddCommand(InfoCmd())
 	root.AddCommand(UserCmd())
 	root.AddCommand(ChargeTrackerCmd())
@@ -88,16 +89,17 @@ func initConfig() {
 	imagePath := filepath.Join(configPath, "logo.png")
 	viper.SetDefault("pdf.image_path", imagePath)
 
-	if err := settings.StoreImage(imagePath); err != nil {
-		fmt.Print("Error while storing image")
-		os.Exit(1)
-	}
-
 	if _, err := os.Stat(configFilePath); os.IsNotExist(err) {
-		if err := os.WriteFile(configFilePath, []byte{}, 0644); err != nil {
+		_ = os.MkdirAll(configPath, os.ModePerm)
+		if err := os.WriteFile(configFilePath, []byte{}, os.ModePerm); err != nil {
 			fmt.Print("Error while creating config file")
 			os.Exit(1)
 		}
+	}
+
+	if err := settings.StoreImage(imagePath); err != nil {
+		fmt.Print("Error while storing image")
+		os.Exit(1)
 	}
 
 	if err := viper.WriteConfig(); err != nil {

@@ -3,33 +3,19 @@ package meter
 import (
 	"fmt"
 
-	"github.com/HappyTobi/warp/pkg/cmd/tools"
-	"github.com/HappyTobi/warp/pkg/internal/renderer"
-	"github.com/HappyTobi/warp/pkg/internal/warp"
+	"github.com/HappyTobi/warp/pkg/cmd/middleware"
+	"github.com/HappyTobi/warp/pkg/internal/meter"
 	"github.com/spf13/cobra"
 )
 
 func Values(cmd *cobra.Command, args []string) error {
-	request := &warp.Request{
-		Path:        "meter/values",
-		ContentType: warp.JSON,
-	}
-
-	if err := tools.LoadGlobalParams(cmd, func(charger, username, password, output string) {
-		request.Warp = charger
-
-		if len(username) > 0 && len(password) > 0 {
-			request.Username = username
-			request.Password = password
-		}
-
-		request.OutputRenderer = renderer.NewRenderer(output)
-
-	}); err != nil {
+	request, err := middleware.LoadWarpRequest(cmd)
+	if err != nil {
 		return err
 	}
 
-	js, err := request.GetJson()
+	meterService := meter.NewMeterService(request)
+	js, err := meterService.Values()
 	if err != nil {
 		return err
 	}
