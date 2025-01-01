@@ -11,3 +11,7 @@ type Evse struct {
 type ChargePower struct {
 	Current int `json:"current"`
 }
+
+type ExternelCurrent struct {
+	Current int `json:"current"`
+}
