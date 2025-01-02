@@ -43,6 +43,7 @@ func enableCmd() *cobra.Command {
 		RunE:  evcc.Enable,
 	}
 
+	enableCmd.Flags().StringP("user", "r", "", "User to start charging (default is provided username)")
 	enableCmd.Flags().String("enable", "false", "Enable charging")
 
 	return enableCmd

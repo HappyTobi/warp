@@ -6,6 +6,8 @@ import (
 
 	"github.com/HappyTobi/warp/pkg/cmd/middleware"
 	"github.com/HappyTobi/warp/pkg/internal/evse"
+	"github.com/HappyTobi/warp/pkg/internal/nfc"
+	"github.com/HappyTobi/warp/pkg/internal/users"
 	"github.com/spf13/cobra"
 )
 
@@ -78,6 +80,40 @@ func Enable(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	nfcTagService := nfc.NewNfcTagsService(request)
+	nfcTags, err := nfcTagService.Config()
+	if err != nil {
+		return err
+	}
+
+	userService := users.NewUsersService(request)
+	allUsers, err := userService.AllUsernames()
+	if err != nil {
+		return err
+	}
+
+	//validate passed user
+	userFilter, _ := cmd.Flags().GetString("user")
+	if len(userFilter) == 0 {
+		userFilter, _ = cmd.InheritedFlags().GetString("username")
+	}
+
+	userTag := nfc.UserTag{}
+	for _, user := range allUsers {
+		if strings.EqualFold(user.Username, userFilter) {
+			for _, tag := range nfcTags.AuthorizedTags {
+				if tag.UserId == user.Id {
+					userTag = tag
+					break
+				}
+			}
+		}
+	}
+
+	if len(userTag.Id) == 0 {
+		return fmt.Errorf("The passed user is not valid or has no valid nfc tag")
+	}
+
 	evseService := evse.NewEvseService(request)
 
 	current := 0
@@ -85,7 +121,16 @@ func Enable(cmd *cobra.Command, args []string) error {
 		current = 6000
 	}
 
-	return evseService.SetExternalCurrent(current)
+	if err := evseService.SetExternalCurrent(current); err != nil {
+		return err
+	}
+
+	if err := nfcTagService.StartCharging(userTag); err != nil {
+		return err
+	}
+
+	fmt.Print(enable)
+	return nil
 }
 
 func MaxCurrent(cmd *cobra.Command, args []string) error {
@@ -98,6 +143,11 @@ func MaxCurrent(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	//change 16 -> 16000
+	currentAmpere = (currentAmpere * 1e3)
+
+	fmt.Print(currentAmpere)
 
 	evseService := evse.NewEvseService(request)
 	return evseService.SetExternalCurrent(currentAmpere)
