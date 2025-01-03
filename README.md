@@ -21,15 +21,20 @@ The cli tool brings the http api to the terminal.
 | `warp version` | Get the version of the warp cli |
 | `warp charge start` | Start charging for a user with or without a specific power |
 | `warp charge stop` | Stops the current charging |
+| `warp configuration` | Create a warp cli configuration file (default at ~/.config/warp/warp.yaml) |
 
 Each command has a help page, which can be accessed with the `-h` or `--help` flag.
 The help page prints the usage of the command and the available flags.
 
 ## Configuration
-The configuration file is located at `~/.warp.yaml`.
+The configuration file is located at `~/.config/warp/warp.yaml`.
 
 #### Default configuration
 ```yaml
+charger:
+    address: "http://my-ip" # optional same as -c
+    user: "foo" # optional same as -u
+    password: "bar" # optional  same as -p
 csv:
     comma: ; # separator for csv
     header: true # add header to csv
@@ -112,6 +117,33 @@ $ warp charge-tracker log -c "http://mywarp.ip -u "username" -p "password" -o pd
 Example pdf document:
 ![Example pdf document](doc/charge-pdf-example.png)
 
+### Evcc integration
+The warp cli evcc integration can be used to interact with a warp charger that has user management enabled.
+
+An example configuration of evcc an the warp cli looks like:
+
+```yaml
+# Charger
+chargers:
+  - name: evcc_warp_charger
+    type: custom
+    status:
+      source: script
+      cmd: /path/to/warp evcc status --config ~/.config/warp/warp.yaml
+      timeout: 5s
+    enabled:
+      source: script
+      cmd: /path/to/warp evcc enabled -u myuser -p mypass -c http://mycharger
+      timeout: 5s
+    enable:
+      source: script
+      cmd: /path/to/warp evcc enable --enable ${enable} --config ~/.config/warp/warp.yaml
+      timeout: 5s
+    maxcurrent:
+      source: script
+      cmd: /path/to/warp evcc maxcurrent --current ${maxcurrent} --config ~/.config/warp/warp.yaml
+      timeout: 5s
+```
 
 ## Warp Charger information
 
