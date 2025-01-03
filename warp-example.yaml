@@ -1,0 +1,22 @@
+charger:
+    password: ""
+    url: ""
+    username: ""
+csv:
+    comma: ;
+    header: true
+pdf:
+    image_path: /workspaces/warp/logo.png
+    print_header: false
+settings:
+    date_time:
+        time_format: 15:04:05 02-01-2006
+        time_zone: Europe/Berlin
+    power:
+        price: "0.35"
+    user:
+        city: internet
+        firstname: happy
+        lastname: tobi
+        postcode: "0000"
+        street: githubroad
