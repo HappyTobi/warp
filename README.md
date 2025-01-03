@@ -22,6 +22,10 @@ The cli tool brings the http api to the terminal.
 | `warp charge start` | Start charging for a user with or without a specific power |
 | `warp charge stop` | Stops the current charging |
 | `warp configuration` | Create a warp cli configuration file (default at ~/.config/warp/warp.yaml) |
+| `warp evcc status` | Status of the warp charger in the required evcc output format |
+| `warp evcc enabled` | Enabled status of the warp charger in the required evcc output format |
+| `warp evcc enable` | Enable a warp charger with the passed true/false flag |
+| `warp evcc maxcurrent` | Change the warp charger charging speed with the passed Ampere flag |
 
 Each command has a help page, which can be accessed with the `-h` or `--help` flag.
 The help page prints the usage of the command and the available flags.
