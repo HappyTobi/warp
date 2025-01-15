@@ -144,10 +144,10 @@ func MaxCurrent(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fmt.Print(currentAmpere)
+
 	//change 16 -> 16000
 	currentAmpere = (currentAmpere * 1e3)
-
-	fmt.Print(currentAmpere)
 
 	evseService := evse.NewEvseService(request)
 	return evseService.SetExternalCurrent(currentAmpere)
