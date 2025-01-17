@@ -92,10 +92,11 @@ func Enable(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	//validate passed user
+	// validate passed user
 	userFilter, _ := cmd.Flags().GetString("user")
 	if len(userFilter) == 0 {
-		userFilter, _ = cmd.InheritedFlags().GetString("username")
+		//use fallback from middleware
+		userFilter = request.Username
 	}
 
 	userTag := nfc.UserTag{}
@@ -116,17 +117,23 @@ func Enable(cmd *cobra.Command, args []string) error {
 
 	evseService := evse.NewEvseService(request)
 
-	current := 0
 	if strings.EqualFold(enable, "true") {
-		current = 6000
-	}
+		current, err := evseService.CurrentChargePower()
+		if err != nil {
+			return err
+		}
 
-	if err := evseService.SetExternalCurrent(current); err != nil {
-		return err
-	}
+		if err := evseService.SetExternalCurrent(current.Current); err != nil {
+			return err
+		}
 
-	if err := nfcTagService.StartCharging(userTag); err != nil {
-		return err
+		if err := nfcTagService.StartCharging(userTag); err != nil {
+			return err
+		}
+	} else {
+		if err := nfcTagService.StopCharging(); err != nil {
+			return err
+		}
 	}
 
 	fmt.Print(enable)
