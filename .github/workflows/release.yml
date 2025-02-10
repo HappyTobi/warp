@@ -33,7 +33,7 @@ jobs:
   release:
     name: Create Release
     runs-on: 'ubuntu-latest'
-    needs:
+    needs: test
     env:
       GITCHGLOG_VERSION: "0.15.4"
     steps:
