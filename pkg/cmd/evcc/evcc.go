@@ -118,12 +118,12 @@ func Enable(cmd *cobra.Command, args []string) error {
 	evseService := evse.NewEvseService(request)
 
 	if strings.EqualFold(enable, "true") {
-		current, err := evseService.CurrentChargePower()
+		current, err := evseService.ReadExternalCurrent()
 		if err != nil {
 			return err
 		}
 
-		if err := evseService.SetExternalCurrent(current.Current); err != nil {
+		if err := evseService.SetExternalCurrent(current); err != nil {
 			return err
 		}
 
