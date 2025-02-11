@@ -65,7 +65,7 @@ jobs:
 
       - name: Release Notes
         run: |
-          ~/.local/bin/git-chglog --template ./.chglog/RELEASE.tpl.md -o .github/RELEASE-TEMPLATE.md
+          ~/.local/bin/git-chglog --template ./.chglog/CHANGELOG.tpl.md -o .github/RELEASE-TEMPLATE.md
           cat .github/RELEASE-TEMPLATE.md
 
       - name: Release with Notes
