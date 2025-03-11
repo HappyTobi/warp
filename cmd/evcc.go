@@ -30,9 +30,10 @@ func statusCmd() *cobra.Command {
 
 func enabledCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "enabled",
-		Short: "Return enabled status of the charger for evcc",
-		RunE:  evcc.Enabled,
+		Use:     "enabled",
+		Short:   "Return enabled status of the charger for evcc",
+		PreRunE: evcc.PreEnabled,
+		RunE:    evcc.Enabled,
 	}
 }
 

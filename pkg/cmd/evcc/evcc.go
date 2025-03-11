@@ -46,6 +46,26 @@ func Status(cmd *cobra.Command, args []string) error {
 	return fmt.Errorf("error while checking charger state")
 }
 
+// pre validate the setting of clear on disconnect
+func PreEnabled(cmd *cobra.Command, args []string) error {
+	request, err := middleware.LoadWarpRequest(cmd)
+	if err != nil {
+		return err
+	}
+
+	evseService := evse.NewEvseService(request)
+
+	// valid setting for clear on disconnect, we have to enable it when it's false to check.
+	if ok, _ := evseService.GetExternalClearOnDisconnect(); !ok {
+		// enable the settings
+		if err := evseService.EnableClearOnDisconnect(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func Enabled(cmd *cobra.Command, args []string) error {
 	request, err := middleware.LoadWarpRequest(cmd)
 	if err != nil {
