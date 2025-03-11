@@ -56,7 +56,12 @@ func PreEnabled(cmd *cobra.Command, args []string) error {
 	evseService := evse.NewEvseService(request)
 
 	// valid setting for clear on disconnect, we have to enable it when it's false to check.
-	if ok, _ := evseService.GetExternalClearOnDisconnect(); !ok {
+	ok, err := evseService.GetExternalClearOnDisconnect()
+	if err != nil {
+		return err
+	}
+
+	if !ok {
 		// enable the settings
 		if err := evseService.EnableClearOnDisconnect(); err != nil {
 			return err
