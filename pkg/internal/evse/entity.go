@@ -15,3 +15,7 @@ type ChargePower struct {
 type ExternelCurrent struct {
 	Current int `json:"current"`
 }
+
+type ClearOnDisconnect struct {
+	Enabled bool `json:"clear_on_disconnect"`
+}

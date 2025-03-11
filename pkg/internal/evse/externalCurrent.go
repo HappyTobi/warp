@@ -18,6 +18,39 @@ func (e *Evse) ReadExternalCurrent() (int, error) {
 	return externalCurrent.Current, nil
 }
 
+func (e *Evse) GetExternalClearOnDisconnect() (bool, error) {
+	e.request.Path = "evse/external_clear_on_disconnect"
+
+	data, err := e.request.Get()
+	if err != nil {
+		return false, err
+	}
+
+	var clearOnDisconnect ClearOnDisconnect
+	if err := json.Unmarshal(data, &clearOnDisconnect); err != nil {
+		return false, err
+	}
+
+	return clearOnDisconnect.Enabled, nil
+}
+
+func (e *Evse) EnableClearOnDisconnect() error {
+	e.request.Path = "evse/external_clear_on_disconnect"
+
+	clearOnDisconnect := ClearOnDisconnect{Enabled: true}
+
+	payload, err := json.Marshal(&clearOnDisconnect)
+	if err != nil {
+		return err
+	}
+
+	if _, err := e.request.Post(payload); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (e *Evse) SetExternalCurrent(val int) error {
 	e.request.Path = "evse/external_current"
 
