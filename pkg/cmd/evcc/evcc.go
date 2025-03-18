@@ -159,6 +159,11 @@ func Enable(cmd *cobra.Command, args []string) error {
 		if err := nfcTagService.StopCharging(); err != nil {
 			return err
 		}
+
+		// set the current to 0
+		if err := evseService.SetExternalCurrent(0); err != nil {
+			return err
+		}
 	}
 
 	fmt.Print(enable)
