@@ -114,6 +114,7 @@ func TestLoadGlobalParams(t *testing.T) {
 func TestLoadGlobalParams_WithViper(t *testing.T) {
 	// Reset viper state
 	viper.Reset()
+	defer viper.Reset() // Ensure cleanup even if test fails
 	
 	// Set some viper values
 	viper.Set("charger.url", "http://viper.local")
@@ -152,7 +153,4 @@ func TestLoadGlobalParams_WithViper(t *testing.T) {
 	if !called {
 		t.Error("LoadGlobalParams() callback function was not called")
 	}
-	
-	// Clean up
-	viper.Reset()
 }

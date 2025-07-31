@@ -30,6 +30,16 @@ func TestCreateConfigFile(t *testing.T) {
 
 	// Reset viper state before test
 	viper.Reset()
+	defer viper.Reset() // Ensure cleanup even if test fails
+
+	// Due to implementation bugs, files may be created in the working directory
+	// Clean up any files that might be created due to viper.SetConfigFile() bugs
+	defer func() {
+		os.Remove("test-warp.yaml")
+		os.Remove("test-warp.json")
+		os.Remove("existing-warp.yaml")
+		os.Remove("warp.yaml")
+	}()
 
 	err := CreateConfigFile(configPath)
 	if err != nil {
@@ -46,6 +56,13 @@ func TestCreateConfigFile_ExistingFile(t *testing.T) {
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, "existing-warp.yaml")
 
+	// Due to implementation bugs, files may be created in the working directory
+	defer func() {
+		os.Remove("existing-warp.yaml")
+		os.Remove("test-warp.yaml")
+		os.Remove("test-warp.json")
+	}()
+
 	// Create an existing config file
 	existingContent := `# Existing config
 settings:
@@ -60,6 +77,7 @@ settings:
 
 	// Reset viper state
 	viper.Reset()
+	defer viper.Reset() // Ensure cleanup even if test fails
 
 	// Call CreateConfigFile on existing file - should not overwrite
 	err = CreateConfigFile(configPath)
@@ -86,8 +104,16 @@ func TestCreateConfigFile_JsonConfig(t *testing.T) {
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, "test-warp.json")
 
+	// Due to implementation bugs, files may be created in the working directory
+	defer func() {
+		os.Remove("test-warp.json")
+		os.Remove("test-warp.yaml")
+		os.Remove("existing-warp.yaml")
+	}()
+
 	// Reset viper state
 	viper.Reset()
+	defer viper.Reset() // Ensure cleanup even if test fails
 
 	err := CreateConfigFile(configPath)
 	if err != nil {
@@ -102,8 +128,16 @@ func TestCreateConfigFile_InvalidPath(t *testing.T) {
 	// Test with an invalid path
 	invalidPath := "/root/invalid/path/that/cannot/be/created/warp.yaml"
 
+	// Due to implementation bugs, files may be created in the working directory
+	defer func() {
+		os.Remove("warp.yaml")
+		os.Remove("test-warp.yaml")
+		os.Remove("test-warp.json")
+	}()
+
 	// Reset viper state
 	viper.Reset()
+	defer viper.Reset() // Ensure cleanup even if test fails
 
 	err := CreateConfigFile(invalidPath)
 	// Note: The current implementation may not return an error due to bugs in error handling
@@ -114,6 +148,24 @@ func TestCreateConfigFile_InvalidPath(t *testing.T) {
 // Helper function to clean up viper state after tests
 func TestMain(m *testing.M) {
 	code := m.Run()
+	
+	// Clean up any leftover files that might be created due to implementation bugs
+	filesToClean := []string{
+		"test-warp.yaml",
+		"test-warp.json", 
+		"existing-warp.yaml",
+		"warp.yaml",
+	}
+	
+	for _, file := range filesToClean {
+		os.Remove(file)
+		// Also clean up from the configuration directory
+		os.Remove(filepath.Join("pkg", "cmd", "configuration", file))
+	}
+	
+	// Clean up any test directories that might have been created
+	os.RemoveAll("/root/invalid")
+	
 	viper.Reset()
 	os.Exit(code)
 }
