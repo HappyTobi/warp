@@ -55,7 +55,7 @@ func CreateConfigFile(configPath string) error {
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		if _, derr := os.Stat(dirName); derr != nil {
-			_ = os.MkdirAll(configPath, os.ModePerm)
+			_ = os.MkdirAll(filepath.Base(configPath), os.ModePerm)
 		}
 	}
 
